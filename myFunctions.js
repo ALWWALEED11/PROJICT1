@@ -52,7 +52,7 @@ $(document).ready(function () {
     localStorage.setItem("apps", JSON.stringify(apps));
 
     alert("✅ تم حفظ التطبيق بنجاح! سيتم نقلك إلى صفحة التطبيقات.");
-    window.location.href = "apps.html";
+    window.location.href = "Appliances.html";
   });
 
   // زر إعادة التعيين
@@ -61,4 +61,5 @@ $(document).ready(function () {
   });
 
 }); // نهاية document.ready
+
 
