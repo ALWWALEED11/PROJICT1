@@ -1,65 +1,73 @@
 $(document).ready(function () {
 
-  // أزرار التفاصيل للصفوف الثابتة
-  $(".show-details-btn").on("click", function() {
-    const targetId = $(this).data("target");
-    const $row = $("#" + targetId);
-    $row.toggle();
-    $(this).text($row.is(":visible") ? "إخفاء التفاصيل" : "إظهار التفاصيل");
-  });
+  // دالة لإظهار/إخفاء التفاصيل
+  function toggleDetails() {
+    $(".show-details-btn").off("click").on("click", function() {
+      const targetId = $(this).data("target");
+      const $row = $("#" + targetId);
+      $row.toggle();
+      $(this).text($row.is(":visible") ? "إخفاء التفاصيل" : "إظهار التفاصيل");
+    });
+  }
+  toggleDetails();
 
-  
-   /** 📄 صفحة إضافة تطبيق (add_app.html)
-   **************************************************/
-  $("#submitBtn").on("click", function () {
-    const name = $("#appName").val().trim();
-    const company = $("#company").val().trim();
-    const website = $("#website").val().trim();
-    const free = $("#free").val();
-    const field = $("#field").val();
-    const desc = $("#description").val().trim();
+  // إضافة التطبيقات في add_app.html
+  if (window.location.pathname.endsWith("add_app.html")) {
+    $("#submitBtn").on("click", function () {
+      const name = $("#appName").val().trim();
+      const company = $("#company").val().trim();
+      const website = $("#website").val().trim();
+      const free = $("#free").val();
+      const field = $("#field").val();
+      const desc = $("#description").val().trim();
 
-    // أنماط التحقق
-    const namePattern = /^[A-Za-z\s]+$/;
-    const companyPattern = /^[A-Za-z\s]+$/;
-    const urlPattern = /^(https?:\/\/)([^\s.]+\.[^\s]{2,}|localhost[:?\d]*)\S*$/i;
+      const namePattern = /^[A-Za-z\s]+$/;
+      const companyPattern = /^[A-Za-z\s]+$/;
+      const urlPattern = /^(https?:\/\/)([^\s.]+\.[^\s]{2,}|localhost[:?\d]*)\S*$/i;
 
-    // التحقق من المدخلات
-    if (!namePattern.test(name)) {
-      alert("❌ اسم التطبيق يجب أن يحتوي على أحرف إنجليزية فقط (يمكن أن يحتوي على مسافات).");
-      return;
-    }
+      if (!namePattern.test(name)) { alert("❌ اسم التطبيق يجب أن يحتوي على أحرف إنجليزية فقط"); return; }
+      if (!companyPattern.test(company)) { alert("❌ اسم الشركة يجب أن يحتوي على أحرف إنجليزية فقط"); return; }
+      if (!urlPattern.test(website)) { alert("❌ الرجاء إدخال رابط موقع صالح يبدأ بـ http أو https."); return; }
+      if (desc.length < 10) { alert("❌ الرجاء إدخال وصف لا يقل عن 10 أحرف."); return; }
 
-    if (!companyPattern.test(company)) {
-      alert("❌ اسم الشركة يجب أن يحتوي على أحرف إنجليزية فقط (يمكن أن يحتوي على مسافات).");
-      return;
-    }
+      const newApp = { name, company, website, free, field, desc };
+      const apps = JSON.parse(localStorage.getItem("apps")) || [];
+      apps.push(newApp);
+      localStorage.setItem("apps", JSON.stringify(apps));
 
-    if (!urlPattern.test(website)) {
-      alert("❌ الرجاء إدخال رابط موقع صالح يبدأ بـ http أو https.");
-      return;
-    }
+      alert("✅ تم حفظ التطبيق بنجاح! سيتم نقلك إلى صفحة التطبيقات.");
+      window.location.href = "Appliances.html";
+    });
 
-    if (desc.length < 10) {
-      alert("❌ الرجاء إدخال وصف لا يقل عن 10 أحرف.");
-      return;
-    }
+    $("#resetBtn").on("click", function () {
+      $("#appForm")[0].reset();
+    });
+  }
 
-    // إنشاء التطبيق الجديد وتخزينه
-    const newApp = { name, company, website, free, field, desc };
+  // عرض التطبيقات المخزنة في Appliances.html
+  if (window.location.pathname.endsWith("Appliances.html")) {
     const apps = JSON.parse(localStorage.getItem("apps")) || [];
-    apps.push(newApp);
-    localStorage.setItem("apps", JSON.stringify(apps));
+    const $dynamicTable = $("#dynamicApps");
+    const template = document.getElementById("appTemplate");
 
-    alert("✅ تم حفظ التطبيق بنجاح! سيتم نقلك إلى صفحة التطبيقات.");
-    window.location.href = "Appliances.html";
-  });
+    apps.forEach((app, index) => {
+      const clone = template.content.cloneNode(true);
 
-  // زر إعادة التعيين
-  $("#resetBtn").on("click", function () {
-    $("#appForm")[0].reset();
-  });
+      $(clone).find(".app-name").text(app.name);
+      $(clone).find(".app-company").text(app.company);
+      $(clone).find(".app-field").text(app.field);
+      $(clone).find(".app-free").text(app.free === "مجاني" ? "✅" : "❌");
+      $(clone).find(".app-desc").text(app.desc);
+      $(clone).find(".app-website").attr("href", app.website).text(app.website);
 
-}); // نهاية document.ready
+      const detailsId = `dynamicApp${index+1}`;
+      $(clone).find(".app-details").attr("id", detailsId);
+      $(clone).find(".show-details-btn").attr("data-target", detailsId);
 
+      $dynamicTable.append(clone);
+    });
 
+    // تفعيل أزرار التفاصيل بعد إضافة كل التطبيقات
+    toggleDetails();
+  }
+});

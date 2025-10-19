@@ -104,15 +104,13 @@ button:hover {
 
 .status-box {
   display: inline-block;
-  width: 25px;
-  height: 25px;
-  line-height: 25px;
-  border: 2px solid #3b82f6;
+  width: 22px;         /* أصغر قليلًا */
+  height: 22px;
+  line-height: 22px;   /* لموازنة الرمز داخل المربع */
   border-radius: 4px;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;     /* تصغير الخط */
   font-weight: bold;
-  color: #fff;
 }
 
 .status-box.free {
